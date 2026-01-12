@@ -11,6 +11,7 @@ enum OrderStatus {
   PENDING
   SUCCEEDED
   CANCELLED
+  EXPIRED
 }
 
 enum UserRole {
@@ -18,25 +19,81 @@ enum UserRole {
   ADMIN
 }
 
+enum DiscountType {
+  SMALL5
+  SMALL10
+  MEDIUM15
+  MEDIUM20
+  MEDIUM25
+  LARGE30
+  LARGE40
+  LARGE50
+}
+
+enum ChatStatus {
+  AVAILABLE
+  OCCUPIED 
+  CLOSED
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  chatId     Int
+
+  sender     User?    @relation(fields: [senderId], references: [id])
+  senderId   Int?
+
+  token String?
+
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+
 model User {
   id        Int      @id @default(autoincrement())
   firstName String
   lastName  String
 
-  login     String
   email     String   @unique
   password  String
   role      UserRole @default(USER)
 
-  cart             Cart?
-  orders           Order[]
-  comments         Comment[]
+  chat       Chat?       @relation("UserChat")
+  adminChats Chat[]      @relation("AdminChat")
 
-  wishListItems WishListItem[]
+  messages   Message[]
+
+  cart       Cart?
+  orders     Order[]
+  comments   Comment[]
+
+  sessionToken String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+model Chat {
+  id        Int       @id @default(autoincrement())
+  user      User?      @relation("UserChat", fields: [userId], references: [id])
+  userId    Int?       @unique
+
+  token     String?    @unique
+
+  admin     User?     @relation("AdminChat", fields: [adminId], references: [id])
+  adminId   Int?
+
+  status    ChatStatus @default(AVAILABLE)
+
+  messages  Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 
 model Category {
   id       Int       @id @default(autoincrement())
@@ -61,7 +118,8 @@ model Book {
   summary     String?
   pages       Int?      
   readingAge  String
-  dimensions  String?   
+  dimensions  String?
+  discount    DiscountType?
 
   author      Author?   @relation(fields: [authorId], references: [id])
   authorId    Int?
@@ -75,9 +133,8 @@ model Book {
   items       BookItem[]
   genres      Genre[]   @relation("BookGenres")
   comments    Comment[]
-  wishListItems WishListItem[]
-
 }
+
 
 model BookItem {
   id          Int          @id @default(autoincrement())
@@ -88,11 +145,14 @@ model BookItem {
   stock       Int
 
   cartItems   CartItem[]
+  orderItems OrderItem[]
+
 
   book        Book         @relation(fields: [bookId], references: [id])
   bookId      Int
-
 }
+
+
 
 model Author {
   id          Int      @id @default(autoincrement())
@@ -122,18 +182,20 @@ model Publisher {
 }
 
 model Cart {
-  id          Int  @id @default(autoincrement())
-  user        User? @relation(fields: [userId], references: [id])
-  userId      Int?  @unique
+  id          Int       @id @default(autoincrement())
+  user        User?     @relation(fields: [userId], references: [id])
+  userId      Int?      @unique
 
   items       CartItem[]
 
-  token       String
-  totalAmount Int     @default(0)
+  token       String?   @unique
+  totalAmount Int       @default(0)
+  expiresAt   DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
+
 
 model CartItem {
   id          Int @id @default(autoincrement())
@@ -148,6 +210,8 @@ model CartItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+    @@unique([cartId, bookItemId])
 }
 
 model Order {
@@ -155,12 +219,12 @@ model Order {
   user        User? @relation(fields: [userId], references: [id])
   userId      Int?
 
-  token       String
+  token       String?
   totalAmount Int
-  status      OrderStatus
+  status      OrderStatus @default(PENDING)
   paymentId   String?
 
-  items       Json
+  items       OrderItem[]
 
   fullName    String
   email       String
@@ -171,6 +235,23 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    Int
+
+  bookItem   BookItem @relation(fields: [bookItemId], references: [id])
+  bookItemId Int
+
+  quantity   Int      @default(1)
+  price      Int     
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
 
 model Comment {
   id        Int      @id @default(autoincrement())
@@ -185,16 +266,4 @@ model Comment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model WishListItem {
-  id        Int      @id @default(autoincrement())
-
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-
-  book      Book     @relation(fields: [bookId], references: [id])
-  bookId    Int
-
-  createdAt DateTime @default(now())
 }

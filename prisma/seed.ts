@@ -1,7 +1,14 @@
-import { BookItem } from "@prisma/client";
+import { BookItem, CartItem } from "@prisma/client";
 import { BookFormat, BookLanguage, mapBookFormat, mapBookLanguage } from "../constants/book";
-import { authors, books, categories, publishers } from "./constants";
+import { authors, books, categories, chats, comments, messages, publishers, users } from "./constants";
 import { prisma } from "./prisma-client";
+import bcrypt from 'bcryptjs';
+
+
+const items = [
+  { bookItemId: 1, quantity: 1 },
+  { bookItemId: 6, quantity: 2 }
+];
 
 type BookItemCreateInput = {
   bookId: number;
@@ -58,28 +65,17 @@ export const generateBookItem = ({
   return results;
 };
 
-
 async function up() {
-    await prisma.user.createMany({
-         data: [
-            {
-            firstName: "Тестовий",
-            lastName: "Користувач",
-            login: "user",
-            email: "user@gmail.com",
-            password: "user123",
-            role: 'USER',
-            },
-            {
-            firstName: "Анастасія",
-            lastName: "Довгошия",
-            login: "admin",
-            email: "admin@gmail.com",
-            password: "admin",
-            role: 'ADMIN',
-            },
-        ],
-    })
+  const hashedUsers = await Promise.all(
+    users.map(async (u) => ({
+      ...u,
+      password: await bcrypt.hash(u.password, 10),
+    }))
+  );
+
+  await prisma.user.createMany({
+    data: hashedUsers
+  })
 
     await prisma.category.createMany({
       data: categories
@@ -97,17 +93,57 @@ async function up() {
       data: books
     })
 
-    const book1 = generateBookItem({bookId: 1, bookItemQuantity: 5});
-    const book2 = generateBookItem({bookId: 2, bookItemQuantity: 6});
-    const book3 = generateBookItem({bookId: 3, bookItemQuantity: 7});
-    const book4 = generateBookItem({bookId: 4, bookItemQuantity: 5});
-    const book5 = generateBookItem({bookId: 5, bookItemQuantity: 4});
-
-
-    await prisma.bookItem.createMany({
-      data: [...book1, ...book2, ...book3, ...book4, ...book5]
+    await prisma.comment.createMany({
+      data: comments
     })
 
+    const book1 = generateBookItem({bookId: 1, bookItemQuantity: 3});
+    const book2 = generateBookItem({bookId: 2, bookItemQuantity: 2});
+    const book3 = generateBookItem({bookId: 3, bookItemQuantity: 4});
+    const book4 = generateBookItem({bookId: 4, bookItemQuantity: 5});
+    const book5 = generateBookItem({bookId: 5, bookItemQuantity: 4});
+    const book6 = generateBookItem({bookId: 6, bookItemQuantity: 1});
+    const book7 = generateBookItem({bookId: 7, bookItemQuantity: 2});
+    const book8 = generateBookItem({bookId: 8, bookItemQuantity: 4});
+    const book9 = generateBookItem({bookId: 9, bookItemQuantity: 1});
+    const book10 = generateBookItem({bookId: 10, bookItemQuantity: 2});
+    const book11 = generateBookItem({bookId: 11, bookItemQuantity: 3});
+
+    await prisma.bookItem.createMany({
+      data: [...book1, ...book2, ...book3, ...book4, ...book5, ...book6, ...book7, ...book8, ...book9, ...book10, ...book11]
+    })
+
+
+    const bookItems = await prisma.bookItem.findMany({
+      where: { id: { in: items.map(i => i.bookItemId) } },
+      select: { id: true, price: true }
+    });
+
+    const totalAmount = items.reduce((sum, item) => {
+      const book = bookItems.find(b => b.id === item.bookItemId);
+      if (!book) throw new Error(`нема ${item.bookItemId}`);
+      return sum + (item.quantity ?? 1) * book.price;
+    }, 0);
+
+    await prisma.cart.create({
+      data: {
+        userId: 2,
+        items: {
+          create: items
+        },
+        totalAmount
+      }
+    })
+
+
+    
+    await prisma.chat.createMany({
+      data: chats
+    })
+
+    await prisma.message.createMany({
+      data: messages
+    }) 
 }
 
 async function down() {
@@ -115,9 +151,12 @@ async function down() {
     await prisma.$executeRaw`TRUNCATE TABLE "Category" RESTART IDENTITY CASCADE`;
     await prisma.$executeRaw`TRUNCATE TABLE "Author" RESTART IDENTITY CASCADE`;
     await prisma.$executeRaw`TRUNCATE TABLE "Publisher" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Comment" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Book" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "BookItem" RESTART IDENTITY CASCADE`;
 
-
-
+    await prisma.$executeRaw`TRUNCATE TABLE "Message" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Chat" RESTART IDENTITY CASCADE`;
 }
 
 async function main() {

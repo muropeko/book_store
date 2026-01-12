@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
+import { Nunito_Sans, Tektur,  } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import "./globals.css";
+import { ChatPopup } from "@components/shared/modal-chat";
+
+const nunitoFont = Tektur({
+  variable: '--font-nunito',
+  subsets: ['cyrillic']
+})
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,9 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} antialiased`}
+        className={`${nunitoFont.variable} antialiased`}
       >
         {children}
+        <ChatPopup />
       </body>
     </html>
   );

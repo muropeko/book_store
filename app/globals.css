@@ -1,3 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--font-nunito), sans-serif;
+}
+
+:root {
+  --font-serif: 'Garamond', 'Baskerville', 'Caslon', serif;
+  --font-josefin: 'Josefin Sans', sans-serif;
+}
+
+
+.josefin {
+  font-family: var(--font-josefin);
+}
+
+.serif {
+  font-family: var(--font-serif);
+}
+
+
 :root {
   --radius: 0.65rem;
   --background: oklch(1 0 0);
