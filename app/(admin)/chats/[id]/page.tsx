@@ -12,7 +12,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const id = Number(params.id);
 
   const chat = await fetchChatById(id); 
-  const cart = await fetchCart(id);
+  const cart = await fetchCart(id.toString());
 
   const adminUser = await getCurrentUser()
 
