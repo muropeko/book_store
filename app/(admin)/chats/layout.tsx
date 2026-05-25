@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { getAllChat } from "app/actions/chat";
 import { ClientSidebar } from "@components/shared/chat";
 
@@ -7,10 +7,10 @@ export default async function ChatsLayout({ children }: { children: ReactNode })
 
   return (
     <div className="flex">
-      <ClientSidebar chats={chats} />
-      <div className="flex-1 overflow-auto">
-        {children}
-      </div>
+      <Suspense fallback={null}>
+        <ClientSidebar chats={chats} />
+      </Suspense>
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   );
 }
