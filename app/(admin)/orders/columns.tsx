@@ -5,17 +5,17 @@ import { OrderStatus } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
 export type OrderDashboardRow = {
-  id: number
-  token?: string
-  status: OrderStatus
-  address: string
-  createdAt: string
+  id: number;
+  token?: string | null;
+  status: OrderStatus;
+  address: string;
+  createdAt: string;
   user: {
-    firstName: string
-    lastName: string
-    email: string
-  } | null
-}
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+};
 
 export const columns: ColumnDef<OrderDashboardRow>[] = [
   {
