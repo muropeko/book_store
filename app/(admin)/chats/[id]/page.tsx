@@ -20,7 +20,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
     return <EmptyBlock title="Пусто!" />;
   }
 
-  if (!adminUser) return null;
+  if (!adminUser || !("id" in adminUser)) return null;
 
   return (
     <div className="flex flex-1 h-full overflow-hidden">
