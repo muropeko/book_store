@@ -3,10 +3,11 @@ import { BookCard } from './book-card';
 import Link from 'next/link';
 import { BookWithAuthor, BookWithAuthorAndDiscount } from 'prisma/types';
 import { EmptyBlock } from './empty-block';
+import { BookDetalisedWithDiscount } from "shared/lib/calc-discount";
 
 interface Props {
   className?: string;
-  items: BookWithAuthorAndDiscount[];
+  items: BookDetalisedWithDiscount[];
 }
 
 export const BookList: FC<Props> = ({ className, items }) => {
