@@ -1,22 +1,18 @@
-'use server'
+"use server";
 
-import { ChatStatus } from '@prisma/client'
-import { prisma } from '../../prisma/prisma-client'
+import { ChatStatus } from "@prisma/client";
+import { prisma } from "../../prisma/prisma-client";
 
-interface URLProps {
-  
-}
+interface URLProps {}
 
-export const getAllChat = async (urlStatus: ChatStatus,) => {
+export const getAllChat = async (urlStatus: ChatStatus) => {
   const chats = await prisma.chat.findMany({
-    where: {
-      status: urlStatus,
-    },
+    where: urlStatus ? { status: urlStatus } : {},
     include: {
       user: true,
       messages: {
         take: 1,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           content: true,
@@ -31,47 +27,47 @@ export const getAllChat = async (urlStatus: ChatStatus,) => {
         },
       },
     },
-  })
-  return chats
-}
+  });
+  return chats;
+};
 
 export type MessageType = {
-  id: number
-  content: string
-  senderId: number | null
-  createdAt: string
-}
+  id: number;
+  content: string;
+  senderId: number | null;
+  createdAt: string;
+};
 
-import { getCurrentUser } from './user'
+import { getCurrentUser } from "./user";
 
 export const fetchChatWithMessages = async () => {
-  const currentUser = await getCurrentUser()
-  if (!currentUser) return null
+  const currentUser = await getCurrentUser();
+  if (!currentUser) return null;
 
-  const userId = 'id' in currentUser ? currentUser.id : undefined
-  const token = 'token' in currentUser ? currentUser.token : undefined
-  const role = 'role' in currentUser ? currentUser.role : undefined
+  const userId = "id" in currentUser ? currentUser.id : undefined;
+  const token = "token" in currentUser ? currentUser.token : undefined;
+  const role = "role" in currentUser ? currentUser.role : undefined;
 
-  if (!userId && !token) return null
+  if (!userId && !token) return null;
 
   let chat = await prisma.chat.findFirst({
     where: userId ? { userId } : { token },
     include: {
-      messages: { orderBy: { createdAt: 'asc' } },
+      messages: { orderBy: { createdAt: "asc" } },
       user: true,
       admin: true,
     },
-  })
+  });
 
-  if (!chat && userId && role !== 'ADMIN') {
+  if (!chat && userId && role !== "ADMIN") {
     chat = await prisma.chat.create({
       data: {
         userId,
-        status: 'AVAILABLE',
+        status: "AVAILABLE",
         messages: {
           create: {
             senderId: userId,
-            content: 'Чат створено!',
+            content: "Чат створено!",
           },
         },
       },
@@ -80,30 +76,27 @@ export const fetchChatWithMessages = async () => {
         user: true,
         admin: true,
       },
-    })
+    });
   }
 
-  console.log('[CHAT] Fetched chat:', chat?.id, 'messages:', chat?.messages.length)
-  return chat
-}
+  console.log("[CHAT] Fetched chat:", chat?.id, "messages:", chat?.messages.length);
+  return chat;
+};
 
-export const sendMessage = async (
-  chatId: number | null,
-  content: string
-) => {
-  const currentUser = await getCurrentUser()
-  if (!currentUser) return null
+export const sendMessage = async (chatId: number | null, content: string) => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) return null;
 
-  const userId = 'id' in currentUser ? currentUser.id : undefined
-  const token = 'token' in currentUser ? currentUser.token : undefined
+  const userId = "id" in currentUser ? currentUser.id : undefined;
+  const token = "token" in currentUser ? currentUser.token : undefined;
 
-  let chat = null
+  let chat = null;
   if (chatId) {
-    chat = await prisma.chat.findUnique({ where: { id: chatId } })
+    chat = await prisma.chat.findUnique({ where: { id: chatId } });
   } else {
     chat = await prisma.chat.findFirst({
       where: userId ? { userId } : { token },
-    })
+    });
   }
 
   if (!chat) {
@@ -133,26 +126,26 @@ export const sendMessage = async (
     });
   }
 
-  return chat
-}
+  return chat;
+};
 
 export const fetchChatById = async (id: number) => {
   const chat = await prisma.chat.findUnique({
     where: { id },
     include: {
-      messages: true
+      messages: true,
     },
-  })
+  });
 
-  return chat
-}
+  return chat;
+};
 
 export const fetchPopupChat = async () => {
   const user = await getCurrentUser();
   if (!user) return null;
 
   const chat = await prisma.chat.findFirst({
-    where: 'id' in user ? { userId: user.id } : { token: user.token },
+    where: "id" in user ? { userId: user.id } : { token: user.token },
     include: { messages: true },
   });
 
@@ -165,4 +158,3 @@ export const changeChatStatus = async (chatId: number, status: ChatStatus) => {
     data: { status },
   });
 };
-
