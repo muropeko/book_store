@@ -54,7 +54,7 @@ export const ChatPopup = () => {
       if (!currentUser) return;
       setUser(currentUser);
 
-      socket = io("http://localhost:4000", {
+      socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000", {
         path: "/socket_io",
         auth: {
           sessionToken: "token" in currentUser ? currentUser.token : currentUser.sessionToken,

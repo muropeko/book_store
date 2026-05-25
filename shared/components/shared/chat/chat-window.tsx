@@ -24,9 +24,9 @@ export const ChatWindow = ({ messages: initialMessages, client, adminId, chatId 
   }, [messages]);
 
   useEffect(() => {
-    socket = io("http://localhost:4000", {
+    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000", {
       path: "/socket_io",
-      auth: { adminId }
+      auth: { adminId },
     });
 
     socket.on('connect', () => {
