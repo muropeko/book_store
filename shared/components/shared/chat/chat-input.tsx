@@ -1,13 +1,12 @@
 import { Button, Textarea } from "@components/ui";
 
 interface ChatInputProps {
-  message: string; // Поточний текст у textarea
-  setMessage: (value: string) => void; // Функція оновлення стану
-  onSend: () => void; // Виклик при відправці повідомлення
+  message: string;
+  setMessage: (value: string) => void;
+  onSend: () => void;
 }
 
 export const ChatInput = ({ message, setMessage, onSend }: ChatInputProps) => {
-  // Обробник Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();

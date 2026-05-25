@@ -9,11 +9,10 @@ const httpServer = createServer();
 const io = new Server(httpServer, {
   path: "/socket_io",
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.NEXT_PUBLIC_APP_URL,
     methods: ["GET", "POST"],
   },
 });
-
 
 io.on("connection", (socket) => {
   console.log("[SERVER] Socket connected:", socket.id);
@@ -66,9 +65,7 @@ io.on("connection", (socket) => {
           socket.join(chat.id.toString());
           socket.emit("message", message);
         }
-      } 
-
-      else {
+      } else {
         chat = await prisma.chat.findUnique({ where: { id: chatId } });
         if (!chat) return;
 
@@ -99,7 +96,6 @@ io.on("connection", (socket) => {
     }
   });
 
-
   socket.on("join_chat", async ({ chatId, adminId }) => {
     if (!chatId) {
       console.error("[SERVER] join_chat called without chatId");
@@ -109,10 +105,9 @@ io.on("connection", (socket) => {
     console.log(`[SERVER] Admin ${adminId} joined chat ${chatId}`);
   });
 
-
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
   });
 });
 
-httpServer.listen(4000, () => console.log("Working!"));
+httpServer.listen(process.env.PORT || 4000, () => console.log("Working!"));

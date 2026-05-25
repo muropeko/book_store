@@ -11,19 +11,17 @@ export async function POST(req: Request) {
     });
     if (!cart) throw new Error("Кошик не знайдено");
 
-    // Проверяем, есть ли уже PENDING заказ для юзера или токена
     let order = cart.userId
       ? await prisma.order.findFirst({ where: { userId: cart.userId, status: "PENDING" } })
       : await prisma.order.findFirst({ where: { token: cart.token, status: "PENDING" } });
 
-    const orderItems = cart.items.map(item => ({
+    const orderItems = cart.items.map((item) => ({
       bookItemId: item.bookItemId,
       quantity: item.quantity,
       price: item.bookItem.price,
     }));
 
     if (!order) {
-      // Если заказа нет — создаём новый
       order = await prisma.order.create({
         data: {
           userId: cart.userId || null,
@@ -39,7 +37,6 @@ export async function POST(req: Request) {
         include: { items: true },
       });
     } else {
-      // Если заказ есть — можно обновить его содержимое и totalAmount
       order = await prisma.order.update({
         where: { id: order.id },
         data: {
@@ -55,7 +52,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // очищаем корзину
     await prisma.cartItem.deleteMany({ where: { cartId } });
 
     return new Response(JSON.stringify({ order }), { status: 200 });

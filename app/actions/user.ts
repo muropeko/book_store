@@ -1,12 +1,12 @@
-'use server'
+"use server";
 
-import { cookies } from "next/headers"
-import { prisma } from "../../prisma/prisma-client"
-import { User, UserRole } from "@prisma/client"
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { v4 as uuidv4 } from 'uuid'
-import { createCart } from "."
+import { cookies } from "next/headers";
+import { prisma } from "../../prisma/prisma-client";
+import { User, UserRole } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { createCart } from ".";
 
 interface JwtPayload {
   userId: string;
@@ -18,7 +18,6 @@ export const getCurrentUser = async (): Promise<User | { token: string } | null>
   const jwtToken = cookieStore.get("jwt")?.value;
   const cartToken = cookieStore.get("cart_token")?.value;
 
-  // Зареєстрований користувач
   if (jwtToken) {
     let payload: JwtPayload;
     try {
@@ -31,40 +30,37 @@ export const getCurrentUser = async (): Promise<User | { token: string } | null>
       where: { id: Number(payload.userId), sessionToken: payload.sessionToken },
     });
 
-    return user; // повертаємо повний User
+    return user;
   }
 
-  // Анонімний користувач
   if (cartToken) {
-    return { token: cartToken }; // просто токен
+    return { token: cartToken };
   }
 
   return null;
 };
 
-
 export const getUserById = async (id: number) => {
   const user = await prisma.user.findFirst({
     where: { id },
-  })
+  });
 
   if (!user) return null;
 
-  return user
-}
+  return user;
+};
 
 export const getAllUsers = async () => {
   const users = await prisma.user.findMany({
     where: { role: UserRole.USER },
     include: {
       orders: { select: { id: true, totalAmount: true, status: true, createdAt: true } },
-      cart: { select: { totalAmount: true, expiresAt: true, items: true } }
-    }
+      cart: { select: { totalAmount: true, expiresAt: true, items: true } },
+    },
   });
 
-  return users.map(u => {
-    // Фильтруем только оплаченные заказы
-    const paidOrders = u.orders.filter(o => o.status === "SUCCEEDED");
+  return users.map((u) => {
+    const paidOrders = u.orders.filter((o) => o.status === "SUCCEEDED");
 
     const orderCount = paidOrders.length;
     const totalSpent = paidOrders.reduce((acc, o) => acc + o.totalAmount, 0);
@@ -86,23 +82,23 @@ export const getAllUsers = async () => {
       lastOrderStatus: lastOrder?.status || null,
       cartTotalAmount: u.cart?.totalAmount || 0,
       cartItemCount: u.cart?.items.length || 0,
-      cartExpiresAt: u.cart?.expiresAt || null
+      cartExpiresAt: u.cart?.expiresAt || null,
     };
   });
 };
 
 export type RegisterData = {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-}
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
 
 export const registerUser = async (data: RegisterData) => {
-  const existing = await prisma.user.findUnique({ where: { email: data.email } })
-  if (existing) throw new Error('Користувач з таким email вже існує')
+  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  if (existing) throw new Error("Користувач з таким email вже існує");
 
-  const hashed = await bcrypt.hash(data.password, 10)
+  const hashed = await bcrypt.hash(data.password, 10);
 
   const user = await prisma.user.create({
     data: {
@@ -111,62 +107,51 @@ export const registerUser = async (data: RegisterData) => {
       email: data.email,
       password: hashed,
     },
-  })
+  });
 
-  return user
-}
+  return user;
+};
 
-const JWT_SECRET = process.env.JWT_SECRET! // має бути в .env
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 type LoginUserData = {
-  email: string
-  password: string
-}
+  email: string;
+  password: string;
+};
 
 export const loginUser = async (data: LoginUserData) => {
-  const { email, password } = data
+  const { email, password } = data;
 
-  // Знаходимо користувача
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user) throw new Error('Email або пароль невірні')
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new Error("Email або пароль невірні");
 
-  // Перевіряємо пароль
-  const passwordMatch = await bcrypt.compare(password, user.password)
-  if (!passwordMatch) throw new Error('Email або пароль невірні')
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) throw new Error("Email або пароль невірні");
 
-  // Генеруємо новий sessionToken
-  const sessionToken = uuidv4()
+  const sessionToken = uuidv4();
   await prisma.user.update({
     where: { id: user.id },
     data: { sessionToken },
-  })
+  });
 
-  // Генеруємо JWT
-  const token = jwt.sign(
-    { userId: user.id, sessionToken },
-    JWT_SECRET,
-    { expiresIn: '7d' }
-  )
+  const token = jwt.sign({ userId: user.id, sessionToken }, JWT_SECRET, { expiresIn: "7d" });
 
-  // Отримуємо cookie store для відповіді
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
-  // Встановлюємо JWT у cookie
   cookieStore.set({
-    name: 'jwt',
+    name: "jwt",
     value: token,
     httpOnly: true,
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7, // 7 днів
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-  })
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  });
 
-  // Видаляємо cart_token після логіну
-cookieStore.delete({
-  name: 'cart_token',
-  path: '/',
-})
+  cookieStore.delete({
+    name: "cart_token",
+    path: "/",
+  });
 
   return {
     success: true,
@@ -177,16 +162,14 @@ cookieStore.delete({
       lastName: user.lastName,
       role: user.role,
     },
-  }
-}
+  };
+};
 
 export const logoutUser = async (userId?: number) => {
   const cookieStore = await cookies();
 
-  // Видаляємо JWT
-  cookieStore.delete({ name: 'jwt', path: '/' });
+  cookieStore.delete({ name: "jwt", path: "/" });
 
-  // Обнуляємо sessionToken
   if (userId) {
     await prisma.user.update({
       where: { id: userId },

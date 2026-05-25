@@ -12,7 +12,6 @@ interface Props {
     actionHref?: string;
 }
 
-// EmptyBlock.tsx
 export const EmptyBlock = ({ className, title, description, actionHref, actionLabel }: Props) => {
   return (
     <div className={cn(className, "flex flex-col justify-center items-center h-full")}>

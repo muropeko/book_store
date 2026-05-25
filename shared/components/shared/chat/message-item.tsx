@@ -7,14 +7,14 @@ interface MessageItemProps {
 
 export const MessageItem = ({ message, adminId }: MessageItemProps) => {
   const isAdmin = message.senderId === adminId;
-  const isUser = message.senderId !== adminId; // все інше — користувач
+  const isUser = message.senderId !== adminId;
 
   return (
     <div
       className={`max-w-[70%] p-3 rounded-lg break-words ${
         isAdmin
-          ? "bg-gray-100 self-start" // адміністратор ліворуч
-          : "bg-red-100 self-end ml-auto" // користувач праворуч
+          ? "bg-gray-100 self-start"
+          : "bg-red-100 self-end ml-auto"
       }`}
     >
       <p>{message.content}</p>

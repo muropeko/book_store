@@ -1,4 +1,3 @@
-// app/api/ws/route.ts
 import { NextRequest } from "next/server";
 import { WebSocketServer } from "ws";
 
@@ -14,7 +13,6 @@ export const GET = async (req: NextRequest) => {
       ws.on("message", (msg) => {
         console.log("[WS] Received:", msg.toString());
 
-        // Шлем всем клиентам
         wss.clients.forEach((client) => {
           if (client.readyState === 1) client.send(msg.toString());
         });

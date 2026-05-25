@@ -21,10 +21,10 @@ export const ModalDropdown = ({ chatId, chatStatus, changeStatus, onChange }: Pr
   );
 
   const handleSelect = async (s: typeof chatStatuses[number]) => {
-    setSelected(s);        // 🔹 миттєво змінюємо UI
+    setSelected(s);
     setOpen(false);
-    await changeStatus(chatId, s.status); // 🔹 Server Action
-    onChange?.(s.status);   // 🔹 передаємо оновлення батьку (ClientItem)
+    await changeStatus(chatId, s.status);
+    onChange?.(s.status);
   };
 
   return (

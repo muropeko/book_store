@@ -11,27 +11,24 @@ interface ClientSidebarProps {
   chats: Chat[];
 }
 
-export const ClientSidebar = ({ chats }: ClientSidebarProps) => { 
+export const ClientSidebar = ({ chats }: ClientSidebarProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Ініціалізуємо таб з URL або "all"
   const initialTab = searchParams.get("status") || "all";
   const [tab, setTab] = useState(initialTab);
   const [openChatId, setOpenChatId] = useState<number | null>(null);
 
   const toggleModal = (chatId: number) => {
-    setOpenChatId(prev => (prev === chatId ? null : chatId));
+    setOpenChatId((prev) => (prev === chatId ? null : chatId));
   };
 
-  // При зміні табу оновлюємо стан і URL
   const chooseTab = (value: string) => {
     setTab(value);
     router.push(`/chats?status=${value}`);
   };
 
-  // Фільтруємо чати за статусом
-  const filteredChats = tab === "all" ? chats : chats.filter(c => c.status === tab);
+  const filteredChats = tab === "all" ? chats : chats.filter((c) => c.status === tab);
 
   return (
     <aside className="border-r border-gray-300 flex flex-col p-1 max-h-screen overflow-y-auto">
@@ -45,22 +42,22 @@ export const ClientSidebar = ({ chats }: ClientSidebarProps) => {
 
         <TabsContent value={tab} className="mt-2">
           <ul className="space-y-2">
-            {filteredChats.map(c => (
+            {filteredChats.map((c) => (
               <ClientItem
-  key={c.id}
-  user={c.user}
-  admin={c.adminId}
-  message={c.messages[0]}
-  chatId={c.id}
-  chatStatus={c.status}
-  isOpen={openChatId === c.id}
-  toggleModal={toggleModal}
-  changeStatus={changeChatStatus} // <- передаємо сюди
-/>
+                key={c.id}
+                user={c.user}
+                admin={c.adminId}
+                message={c.messages[0]}
+                chatId={c.id}
+                chatStatus={c.status}
+                isOpen={openChatId === c.id}
+                toggleModal={toggleModal}
+                changeStatus={changeChatStatus}
+              />
             ))}
           </ul>
         </TabsContent>
       </Tabs>
     </aside>
   );
-}
+};

@@ -7,7 +7,7 @@ import { ChatInput, ChatMessages } from "../modal-chat";
 
 interface Props {
   messages: Message[]
-  client: User
+  client: User | string | undefined;
   adminId: number | null
   chatId: number
 }
@@ -19,13 +19,11 @@ export const ChatWindow = ({ messages: initialMessages, client, adminId, chatId 
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Автоскрол
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages]);
 
   useEffect(() => {
-    // Підключаємося до сокета
     socket = io("http://localhost:4000", {
       path: "/socket_io",
       auth: { adminId }
@@ -33,11 +31,9 @@ export const ChatWindow = ({ messages: initialMessages, client, adminId, chatId 
 
     socket.on('connect', () => {
       console.log(`[ADMIN ${adminId}] connected, joining room ${chatId}`);
-      // ✅ Передаємо об’єкт, як очікує сервер
       socket?.emit('join_chat', { chatId, adminId });
     });
 
-    // Отримання повідомлень для цього чату
     socket.on('message', (msg: Message | { messages: Message[]; chatId: number }) => {
       if ('messages' in msg) {
         console.log(`[ADMIN ${adminId}] got full chat:`, msg);
@@ -70,26 +66,24 @@ export const ChatWindow = ({ messages: initialMessages, client, adminId, chatId 
     setInputMessage('');
   }
 
-return (
-  <div className="flex flex-col h-full">
-    <pre>{JSON.stringify(adminId, null, 3)}</pre>
+  return (
+    <div className="flex flex-col h-full">
+      <pre>{JSON.stringify(adminId, null, 3)}</pre>
 
-    <div className="h-[500px] overflow-auto">
-      <ChatMessages
-        messages={messages}
-        messagesEndRef={messagesEndRef}
-        client={client}
-        adminId={adminId}
+      <div className="h-[500px] overflow-auto">
+        <ChatMessages
+          messages={messages}
+          messagesEndRef={messagesEndRef}
+          client={client}
+          adminId={adminId}
+        />
+      </div>
+
+      <ChatInput
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        handleSend={handleSend}
       />
     </div>
-
-    <ChatInput
-      inputMessage={inputMessage}
-      setInputMessage={setInputMessage}
-      handleSend={handleSend}
-    />
-  </div>
-);
-
-
+  );
 }

@@ -6,14 +6,12 @@ export async function POST(req: NextRequest) {
   try {
     const { chatId, content } = await req.json();
 
-    // Берем JWT из запроса
     const token = req.cookies.get("jwt")?.value;
     if (!token) {
       console.log("[CHAT] No JWT, unauthorized");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Проверяем токен
     let payload: { userId: number; sessionToken: string };
     try {
       payload = jwt.verify(token, process.env.JWT_SECRET!) as any;
@@ -30,7 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Создаем или находим чат
     let chat;
     if (!chatId) {
       chat = await prisma.chat.create({
@@ -42,7 +39,6 @@ export async function POST(req: NextRequest) {
       if (!chat) return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
 
-    // Создаем сообщение
     const message = await prisma.message.create({
       data: { chatId: chat.id, senderId: user.id, content },
     });

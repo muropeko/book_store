@@ -15,16 +15,6 @@ export async function POST(req: Request) {
 
     if (!order) throw new Error("Order not found");
 
-    const line_items = order.items.map(item => ({
-      price_data: {
-        currency: "uah",
-        product_data: { name: item.bookItem.book.title },
-        unit_amount: item.price * 100,
-      },
-      quantity: item.quantity,
-    }));
-
-    // Создаем PaymentIntent вместо редиректа
     const paymentIntent = await stripe.paymentIntents.create({
       amount: order.totalAmount * 100,
       currency: "uah",

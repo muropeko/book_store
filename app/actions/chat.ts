@@ -63,7 +63,6 @@ export const fetchChatWithMessages = async () => {
     },
   })
 
-  // якщо чата нема і це НЕ адмін → створюємо
   if (!chat && userId && role !== 'ADMIN') {
     chat = await prisma.chat.create({
       data: {
@@ -108,12 +107,11 @@ export const sendMessage = async (
   }
 
   if (!chat) {
-    // Создаем чат с первым сообщением
     chat = await prisma.chat.create({
       data: {
         userId,
         token,
-        status: 'AVAILABLE',
+        status: "AVAILABLE",
         messages: {
           create: {
             content,
@@ -123,7 +121,7 @@ export const sendMessage = async (
         },
       },
       include: { messages: true },
-    })
+    });
   } else {
     await prisma.message.create({
       data: {
@@ -132,7 +130,7 @@ export const sendMessage = async (
         senderId: userId ?? null,
         token: userId ? null : token,
       },
-    })
+    });
   }
 
   return chat

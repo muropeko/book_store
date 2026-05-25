@@ -8,7 +8,7 @@ export const LogoutButton = ({ userId }: { userId: number }) => {
 
   const handleLogout = async () => {
     await logoutUser(userId);
-    router.push('/'); // or '/auth/login'
+    router.push("/");
   };
 
   return (

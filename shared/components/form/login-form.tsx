@@ -7,10 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@components/form'
 import { Button } from '@components/ui'
 import { Eye, EyeOff } from 'lucide-react'
-import { loginUser } from 'app/actions/user' // server action для логіну
+import { loginUser } from "app/actions/user";
 import { useRouter } from 'next/navigation'
 
-// Валідація
 const schema = z.object({
   email: z
     .string()

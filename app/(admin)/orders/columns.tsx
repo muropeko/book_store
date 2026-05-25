@@ -1,12 +1,9 @@
 "use client"
 
-import { BadgeStatus } from "@components/shared/order"
-import { Badge } from "@components/ui/badge"
-import { OrderStatus } from "@prisma/client"
-import { ColumnDef } from "@tanstack/react-table"
-import Link from "next/link"
+import { BadgeStatus } from "@components/shared/order";
+import { OrderStatus } from "@prisma/client";
+import { ColumnDef } from "@tanstack/react-table";
 
-// Тип рядка таблиці
 export type OrderDashboardRow = {
   id: number
   token?: string
@@ -20,7 +17,6 @@ export type OrderDashboardRow = {
   } | null
 }
 
-// Колонки для react-table з українськими заголовками
 export const columns: ColumnDef<OrderDashboardRow>[] = [
   {
     accessorKey: "id",

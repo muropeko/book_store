@@ -10,13 +10,13 @@ export const ChatInput = ({ inputMessage, setInputMessage, handleSend }: ChatInp
   <div className="p-4 border-t flex items-center gap-2 bg-white">
     <textarea
       className="flex-1 border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 resize-none h-12"
-      placeholder="Type your message..."
+      placeholder="Введіть текст..."
       value={inputMessage}
       onChange={(e) => setInputMessage(e.target.value)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault()
-          handleSend()
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
         }
       }}
     />
@@ -27,4 +27,4 @@ export const ChatInput = ({ inputMessage, setInputMessage, handleSend }: ChatInp
       Надіслати
     </button>
   </div>
-)
+);

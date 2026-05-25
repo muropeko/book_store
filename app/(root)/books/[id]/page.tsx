@@ -10,15 +10,11 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
 
   return (
     <>
-      { book && <BreadcrumbCustom title="Книги" />}
+      {book && <BreadcrumbCustom title="Книги" />}
 
       <div className="py-10 min-h-screen">
         <Container className="flex flex-col gap-10">
           <div className="flex gap-10 min-h-screen">
-            <aside className="w-1/5 p-4">
-              this is sidebar.
-            </aside>
-
             <section className="flex-1 flex flex-col gap-6">
               {book ? (
                 <>

@@ -38,7 +38,6 @@ export const createCart = async (userId?: number, token?: string) => {
   return cart;
 };
 
-// --- fetchCart залишається без змін ---
 export const fetchCart = async (userId?: string) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("cart_token")?.value;
@@ -87,7 +86,6 @@ export const fetchCart = async (userId?: string) => {
   return cart;
 };
 
-// --- Допоміжна функція для перерахунку totalAmount ---
 const updateCartTotalAmount = async (cartId: number) => {
   const cart = await prisma.cart.findUnique({
     where: { id: cartId },
@@ -113,7 +111,6 @@ const updateCartTotalAmount = async (cartId: number) => {
   return await fetchCart();
 };
 
-// --- Додаємо товар ---
 export const addCartItem = async (bookItemId: number, itemQuantity: number) => {
   const cart = await fetchCart();
 
@@ -127,7 +124,6 @@ export const addCartItem = async (bookItemId: number, itemQuantity: number) => {
   return await updateCartTotalAmount(cart.id);
 };
 
-// --- Віднімаємо товар ---
 export const subtractCartItem = async (bookItemId: number, itemQuantity: number) => {
   const cart = await fetchCart();
   const cartItem = cart.items.find(item => item.bookItem.id === bookItemId);
@@ -149,7 +145,6 @@ export const subtractCartItem = async (bookItemId: number, itemQuantity: number)
   return await updateCartTotalAmount(cart.id);
 };
 
-// --- Видаляємо товар ---
 export const deleteCartItem = async (cartItemId: number) => {
   const cartItem = await prisma.cartItem.findUnique({ where: { id: cartItemId } });
   if (!cartItem) throw new Error("CartItem not found");

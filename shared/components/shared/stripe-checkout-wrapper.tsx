@@ -24,9 +24,6 @@ interface StripeCheckoutWrapperProps {
   };
 }
 
-
-
-// StripeCheckoutWrapper.tsx
 export const StripeCheckoutWrapper = ({ cart, orderId }: StripeCheckoutWrapperProps) => {
   return (
     <Elements stripe={stripePromise}>

@@ -1,5 +1,4 @@
-// useSelectBook.ts
-'use client'
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { BookItemWithDiscount } from "prisma/types";
@@ -8,27 +7,26 @@ import { bookFormats, BookFormat, BookLanguage } from "constants/book";
 
 export const useSelectBook = (items: BookItemWithDiscount[]): ISelectBook => {
   const availableFormats = useMemo(() => {
-    const formatsSet = new Set(items.map(item => item.format));
-    return bookFormats.filter(f => formatsSet.has(f.value));
+    const formatsSet = new Set(items.map((item) => item.format));
+    return bookFormats.filter((f) => formatsSet.has(f.value));
   }, [items]);
 
   const [format, setFormat] = useState<BookFormat>(availableFormats[0]?.value as BookFormat);
-  const availableLanguages = useMemo(
-    () => getAvailiableBookType(items, format),
-    [items, format]
+  const availableLanguages = useMemo(() => getAvailiableBookType(items, format), [items, format]);
+  const [language, setLanguage] = useState<BookLanguage>(
+    (availableLanguages[0]?.value as BookLanguage) ?? 1,
   );
-  const [language, setLanguage] = useState<BookLanguage>(availableLanguages[0]?.value as BookLanguage ?? 1);
 
   const [currentBook, setCurrentBook] = useState<BookItemWithDiscount | null>(null);
 
   useEffect(() => {
-    const book = items.find(i => i.format === format && i.language === language);
+    const book = items.find((i) => i.format === format && i.language === language);
     setCurrentBook(book ?? null);
   }, [items, format, language]);
 
   useEffect(() => {
-    if (!items.some(i => i.format === format && i.language === language)) {
-      const firstBookForFormat = items.find(i => i.format === format);
+    if (!items.some((i) => i.format === format && i.language === language)) {
+      const firstBookForFormat = items.find((i) => i.format === format);
       if (firstBookForFormat) {
         setLanguage(firstBookForFormat.language as BookLanguage);
       }

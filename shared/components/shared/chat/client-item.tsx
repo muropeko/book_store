@@ -13,7 +13,7 @@ interface ClientItemProps {
 
   isOpen: boolean;
   toggleModal: (chatId: number) => void;
-  changeStatus: (chatId: number, status: ChatStatus) => Promise<void>; // Server Action
+  changeStatus: (chatId: number, status: ChatStatus) => Promise<void>;
 }
 
 export const ClientItem = ({
@@ -24,7 +24,7 @@ export const ClientItem = ({
   chatStatus,
   isOpen,
   toggleModal,
-  changeStatus
+  changeStatus,
 }: ClientItemProps) => {
   const router = useRouter();
 
@@ -35,9 +35,11 @@ export const ClientItem = ({
   const containerBg = admin ? "bg-red-100" : "bg-gray-50";
 
   const statusColor =
-    chatStatus === ChatStatus.AVAILABLE ? "bg-green-500" :
-    chatStatus === ChatStatus.OCCUPIED ? "bg-yellow-400" :
-    "bg-red-500";
+    chatStatus === ChatStatus.AVAILABLE
+      ? "bg-green-500"
+      : chatStatus === ChatStatus.OCCUPIED
+        ? "bg-yellow-400"
+        : "bg-red-500";
 
   return (
     <li
@@ -46,44 +48,41 @@ export const ClientItem = ({
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-<span 
-  className={`w-3 h-3 rounded-full ${statusColor} cursor-pointer`} 
-  onClick={(e) => {
-    e.stopPropagation();
-    if (!admin || !chatId) return;
-    toggleModal(chatId);
-  }}
-/>
+          <span
+            className={`w-3 h-3 rounded-full ${statusColor} cursor-pointer`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!admin || !chatId) return;
+              toggleModal(chatId);
+            }}
+          />
 
-{isOpen && chatId && (
-  <ModalDropdown
-    chatId={chatId}
-    chatStatus={chatStatus}
-    changeStatus={changeStatus} // Server Action
-    onChange={(newStatus) => {
-      // 🔹 локально оновлюємо статус в ClientItem
-      chatStatus = newStatus;  
-      toggleModal(chatId); // закриваємо модалку
-    }}
-  />
-)}
+          {isOpen && chatId && (
+            <ModalDropdown
+              chatId={chatId}
+              chatStatus={chatStatus}
+              changeStatus={changeStatus}
+              onChange={(newStatus) => {
+                chatStatus = newStatus;
+                toggleModal(chatId);
+              }}
+            />
+          )}
 
-
-          <p className="font-medium">
-            {user ? `${user.firstName} ${user.lastName}` : "Гість"}
-          </p>
+          <p className="font-medium">{user ? `${user.firstName} ${user.lastName}` : "Гість"}</p>
         </div>
 
         <p className="text-xs text-gray-400">
           {message
-            ? new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            ? new Date(message.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
             : "No messages"}
         </p>
       </div>
 
-      <p className="text-sm text-gray-500 truncate">
-        {message?.content || "No messages"}
-      </p>
+      <p className="text-sm text-gray-500 truncate">{message?.content || "No messages"}</p>
     </li>
   );
 };
