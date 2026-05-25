@@ -3,6 +3,9 @@ import { getAllChat } from "app/actions/chat";
 import { ClientSidebar } from "@components/shared/chat";
 
 export default async function ChatsLayout({ children }: { children: ReactNode }) {
+
+  export const dynamic = "force-dynamic";
+  
   const chats = await getAllChat();
 
   return (
