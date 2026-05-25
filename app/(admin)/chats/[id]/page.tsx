@@ -11,15 +11,16 @@ interface ChatPageProps {
 export default async function ChatPage({ params }: ChatPageProps) {
   const id = Number(params.id);
 
-  const chat = await fetchChatById(id); 
+  const chat = await fetchChatById(id);
   const cart = await fetchCart(id.toString());
 
-
-  const adminUser = await getCurrentUser()
+  const adminUser = await getCurrentUser();
 
   if (!chat) {
     return <EmptyBlock title="Пусто!" />;
   }
+
+  if (!adminUser) return null;
 
   return (
     <div className="flex flex-1 h-full overflow-hidden">
