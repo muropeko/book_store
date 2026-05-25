@@ -9,7 +9,7 @@ export type OrderDashboardRow = {
   token?: string | null;
   status: OrderStatus;
   address: string;
-  createdAt: Date | string;
+  createdAt: Date;
   user: {
     firstName: string;
     lastName: string;
