@@ -5,7 +5,7 @@ import { prisma } from "../../prisma/prisma-client";
 
 interface URLProps {}
 
-export const getAllChat = async (urlStatus: ChatStatus) => {
+export const getAllChat = async (urlStatus?: ChatStatus) => {
   const chats = await prisma.chat.findMany({
     where: urlStatus ? { status: urlStatus } : {},
     include: {
