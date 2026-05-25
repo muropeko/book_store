@@ -26,7 +26,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <ChatWindow
           messages={chat.messages}
-          client={chat.userId || chat.token}
+          client={chat.userId?.toString() || chat.token || undefined}
           adminId={adminUser.id}
           chatId={id}
         />
