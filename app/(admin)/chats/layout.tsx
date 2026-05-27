@@ -2,10 +2,9 @@ import { ReactNode, Suspense } from "react";
 import { getAllChat } from "app/actions/chat";
 import { ClientSidebar } from "@components/shared/chat";
 
-export default async function ChatsLayout({ children }: { children: ReactNode }) {
+export const dynamic = "force-dynamic";
 
-  export const dynamic = "force-dynamic";
-  
+export default async function ChatsLayout({ children }: { children: ReactNode }) {
   const chats = await getAllChat();
 
   return (
